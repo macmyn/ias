@@ -138,7 +138,9 @@ int main(int argc, char **argv)
         config.readInto(lifetime, "lifetime");
         config.readInto(endWhenDivision, "endWhenDivision");
 
-        
+        cout << "Params modified from default:" << endl;
+        config.printContents();
+
         if(updateMethod.compare("eulerian")!=0 and updateMethod.compare("ale") != 0)
             throw runtime_error("Update method not understood. It should be either \"eulerian\" or \"ALE\"");
     }

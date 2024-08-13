@@ -55,6 +55,13 @@ namespace ias
     }
 
 
+    void ConfigFile::printContents() const {
+    for (const auto& pair : myContents) {
+        std::cout << pair.first << " " << myDelimiter << " " << pair.second << std::endl;
+    }
+}
+
+
     std::ostream& operator<<( std::ostream& os, const ConfigFile& cf )
     {
         // Save a ConfigFile to os
