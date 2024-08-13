@@ -1,7 +1,14 @@
 #Initialise
+cmake_minimum_required(VERSION 3.12)
+
 project(ias)
 
-cmake_minimum_required(VERSION 3.12)
+#Compuler flags 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -ggdb -O0 -Wall -Wextra -Wpedantic")
+
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(MAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
@@ -36,11 +43,6 @@ if(APPLE)
 endif()
 find_package(OpenMP REQUIRED)
 
-#Compuler flags
-set(CMAKE_CXX_STANDARD 11)
-#set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -ggdb -O0 -Wall -Wextra -Wpedantic")
 
 #Trilinos
 find_package(Trilinos REQUIRED)
