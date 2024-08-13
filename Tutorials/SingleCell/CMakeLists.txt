@@ -1,4 +1,4 @@
-if(CMAKE_CXX_STANDARD==17)
+if(CMAKE_CXX_STANDARD GREATER_EQUAL 17)
     get_filename_component(folder ${CMAKE_CURRENT_LIST_DIR} NAME)
 
     file(GLOB SOURCES_CPP *.cpp)
