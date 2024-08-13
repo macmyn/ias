@@ -93,6 +93,8 @@ namespace ias
             friend std::ostream& operator<<( std::ostream& os, const ConfigFile& cf );
             friend std::istream& operator>>( std::istream& is, ConfigFile& cf );
 
+            void printContents() const;
+
         protected:
             template<class T> static string T_as_string( const T& t );
             template<class T> static T string_as_T( const string& s );
