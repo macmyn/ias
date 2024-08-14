@@ -53,11 +53,11 @@ int main(int argc, char **argv)
     double stepFac{0.95};
     double maxDeltat{1.0};
 
-    int    nr_maxite{5};
-    double nr_restol{1.E-8};
-    double nr_soltol{1.E-8};
+    int    nr_maxite{6};
+    double nr_restol{1.E-7};
+    double nr_soltol{1.E-7};
 
-    int platonicSource{};
+    int platonicSource{3};
     bool remesh{false};
 
     string  fEnerName{"energies.txt"};

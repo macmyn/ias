@@ -102,19 +102,131 @@ int main(int argc, char **argv)
     physicsNewtonRaphson->setVerbosity(true);
     physicsNewtonRaphson->Update();
 
-    
-    physicsNewtonRaphson->solve();
-    bool conv = physicsNewtonRaphson->getConvergence();
-    
-    for(auto cell: tissue->getLocalCells())
-    {
-        cell->getNodeField("vx") /= deltat;
-        cell->getNodeField("vy") /= deltat;
-        cell->getNodeField("vz") /= deltat;
-    }
-    tissue->saveVTK("solution","_n"+to_string(nSubdiv));
+    int step{};
+    double time = tissue->getTissField("time");
 
-    cout << "L2 norm error vn = " << sqrt(tissue->getTissField("error")) << endl;
+    int conv{};  // check convergence
+    bool rec_str{};  // 'get recalculate matrix structure'
+    while(time < totTime)
+    {
+        for(auto cell: tissue->getLocalCells())
+        {
+            cell->getNodeField("x0")  = cell->getNodeField("x");
+            cell->getNodeField("y0")  = cell->getNodeField("y");
+            cell->getNodeField("z0")  = cell->getNodeField("z");
+            
+            cell->getNodeField("vx0") = cell->getNodeField("vx");
+            cell->getNodeField("vy0") = cell->getNodeField("vy");
+            cell->getNodeField("vz0") = cell->getNodeField("vz");
+            
+            cell->getCellField("P0")    = cell->getCellField("P");
+        }
+        tissue->updateGhosts();
+    
+    if(conv)
+        rec_str = max(rec_str,physicsIntegration->getRecalculateMatrixStructure());
+    else if(rec_str)
+    {
+        physicsIntegration->recalculateMatrixStructure();
+        physicsLinearSolver->recalculatePreconditioner();
+        rec_str = false;
+    }
+
+    if(tissue->getMyPart()==0)
+        cout << "Step " << step << ", time=" << time << ", deltat=" << deltat << endl;
+    
+    if(tissue->getMyPart()==0)
+            cout << "Solving for velocities" << endl;
+    
+       
+    physicsNewtonRaphson->solve();
+    conv = physicsNewtonRaphson->getConvergence();
+    
+    if ( conv )
+    {
+        int nIter = physicsNewtonRaphson->getNumberOfIterations();
+
+        conv = paramUpdate->UpdateParametrisation();
+
+        if (conv)
+            {
+                if(tissue->getMyPart()==0)
+                    cout << "Solved!"  << endl;
+                
+                time += deltat;
+                tissue->getTissField("time") = time;
+
+                for(auto cell: tissue->getLocalCells())
+                {
+                    cell->getNodeField("vx") /= deltat;
+                    cell->getNodeField("vy") /= deltat;
+                    cell->getNodeField("vz") /= deltat;
+                }
+                tissue->saveVTK("Cell","_t"+to_string(step+1));
+                for(auto cell: tissue->getLocalCells())
+                {
+                    cell->getNodeField("vx") *= deltat;
+                    cell->getNodeField("vy") *= deltat;
+                    cell->getNodeField("vz") *= deltat;
+                }
+
+                if(nIter < nr_maxite)
+                {
+                    deltat /= stepFac;
+                    for(auto cell: tissue->getLocalCells())
+                    {
+                        cell->getNodeField("vx") /= stepFac;
+                        cell->getNodeField("vy") /= stepFac;
+                        cell->getNodeField("vz") /= stepFac;
+                    }
+                }
+                if(deltat > maxDeltat)
+                    deltat = maxDeltat;
+                step++;
+
+            }
+            else
+            {
+                cout << "failed!" << endl;
+                deltat *= stepFac;
+                for(auto cell: tissue->getLocalCells())
+                {
+                    cell->getNodeField("x") = cell->getNodeField("x0");
+                    cell->getNodeField("y") = cell->getNodeField("y0");
+                    cell->getNodeField("z") = cell->getNodeField("z0");
+                }
+                tissue->updateGhosts();
+            }
+        }
+        else
+        {
+            deltat *= stepFac;
+            
+            for(auto cell: tissue->getLocalCells())
+            {
+                cell->getNodeField("vx") = cell->getNodeField("vx0") * stepFac;
+                cell->getNodeField("vy") = cell->getNodeField("vy0") * stepFac;
+                cell->getNodeField("vz") = cell->getNodeField("vz0") * stepFac;
+                cell->getCellField("P")  = cell->getCellField("P0");
+            }
+            tissue->updateGhosts();
+        }
+        tissue->getTissField("deltat") = deltat;
+        
+        tissue->calculateCellCellAdjacency(3.0*intCL+intEL);
+        tissue->updateGhosts();       
+
+    }
+
+    // for(auto cell: tissue->getLocalCells())
+    // {
+    //     cell->getNodeField("vx") /= deltat;
+    //     cell->getNodeField("vy") /= deltat;
+    //     cell->getNodeField("vz") /= deltat;
+    // }
+    // tissue->saveVTK("solution","_n"+to_string(nSubdiv));
+
+    // cout << "L2 norm error vn = " << sqrt(tissue->getTissField("error")) << endl;
 
     MPI_Finalize();
 
