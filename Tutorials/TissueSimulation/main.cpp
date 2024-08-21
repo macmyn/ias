@@ -72,6 +72,8 @@ int main(int argc, char **argv)
     double stepFac{0.95};
     double maxDeltat{1.0};
 
+    string cell_suffix = "TEST";
+
     int    nr_maxite{5};
     double nr_restol{1.E-8};
     double nr_soltol{1.E-8};
@@ -137,6 +139,9 @@ int main(int argc, char **argv)
 
         config.readInto(lifetime, "lifetime");
         config.readInto(endWhenDivision, "endWhenDivision");
+
+        config.readInto(cell_suffix, "suffix");
+        cell_suffix = "_" + cell_suffix;
 
         cout << "Params modified from default:" << endl;
         config.printContents();
@@ -207,7 +212,7 @@ int main(int argc, char **argv)
             cell->getCellField("lifetime") = lifetime;
             cell->getCellField("tCycle") = 0.0;
         }
-        tissue->saveVTK("Cell","_t"+to_string(0));
+        tissue->saveVTK("Cell"+cell_suffix,"_t"+to_string(0));
     }
     else
     {
@@ -226,7 +231,7 @@ int main(int argc, char **argv)
             cell->getNodeField("vz") *= 0.0;//deltat;
         }
     }
-    tissue->saveVTK("Cell","_t"+to_string(1));
+    tissue->saveVTK("Cell"+cell_suffix,"_t"+to_string(1));
 
     RCP<ParametrisationUpdate> paramUpdate = rcp(new ParametrisationUpdate);
     paramUpdate->setTissue(tissue);
@@ -262,7 +267,7 @@ int main(int argc, char **argv)
     physicsNewtonRaphson->setLinearSolver(physicsLinearSolver);
     physicsNewtonRaphson->setSolutionTolerance(1.E-8);
     physicsNewtonRaphson->setResidueTolerance(1.E-8);
-    physicsNewtonRaphson->setMaximumNumberOfIterations(5);
+    physicsNewtonRaphson->setMaximumNumberOfIterations(nr_maxite);
     physicsNewtonRaphson->setVerbosity(true);
     physicsNewtonRaphson->setUpdateInteractingGaussPointsPerIteration(true);
     physicsNewtonRaphson->Update();
@@ -394,7 +399,7 @@ int main(int argc, char **argv)
                     cell->getNodeField("vy") /= deltat;
                     cell->getNodeField("vz") /= deltat;
                 }
-                tissue->saveVTK("Cell","_t"+to_string(step+1));
+                tissue->saveVTK("Cell"+cell_suffix,"_t"+to_string(step+1));
                 for(auto cell: tissue->getLocalCells())
                 {
                     cell->getNodeField("vx") *= deltat;

@@ -163,7 +163,8 @@ void internal(Teuchos::RCP<ias::SingleIntegralStr> fill)
         A_nn  += fill->w_sample *  kappa * (jac * (H * ddH + outer(dH,dH)) + H * outer(dH,djac) + H * outer(djac,dH) + 0.5 * H * H * ddjac);
     }
 
-    //Confinement
+    //Confinement           
+    //args from aux.h:                           centre    direc     "h"    "x"
     double cPot = ConfinementPotential(kConfin, cConfin, dConfin, tConfin, x);
     tensor<double,1> dx_cPot = dConfinementPotential(kConfin, cConfin, dConfin, tConfin, x);
     tensor<double,2> ddx_cPot = ddConfinementPotential(kConfin, cConfin, dConfin, tConfin, x);

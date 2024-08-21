@@ -1,0 +1,6 @@
+nx = 1
+kConfin = 1.0E-1
+dConfinZ = 1.0
+tConfin = 1.0
+suffix = 1cells-confined
+nr_maxite = 8

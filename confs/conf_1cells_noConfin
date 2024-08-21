@@ -1,4 +1,5 @@
 nx = 1
+kConfin = 0.0E3
 dConfinZ = 0.0
 tConfin = 0.0
-
+suffix = 1cells-notconfined

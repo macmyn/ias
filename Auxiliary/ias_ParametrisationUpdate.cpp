@@ -154,7 +154,7 @@ namespace ias
                     newtonRaphson->setLinearSolver(linearSolver);
                     newtonRaphson->setSolutionTolerance(1.E-8);
                     newtonRaphson->setResidueTolerance(1.E-8);
-                    newtonRaphson->setMaximumNumberOfIterations(5);
+                    newtonRaphson->setMaximumNumberOfIterations(nIter);
                     newtonRaphson->setVerbosity(false);
                     newtonRaphson->Update();
                     _newtonRaphsons.push_back(newtonRaphson);
